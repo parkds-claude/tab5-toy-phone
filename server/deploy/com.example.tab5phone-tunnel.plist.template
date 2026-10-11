@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- (run 에 이름을 안 준다: 설정 파일의 tunnel: UUID 로만 — 공용 설정이 자동으로 읽히는 기기에서 이름은 공용 터널로 샌다)
+     Tab5 전화기 전용 Cloudflare 터널(tab5phone) launchd 설정 템플릿 (P4-D2). phone_relay_prod.sh tunnel-install 이 채워 쓴다.
+     기존 터널(~/.cloudflared/config.yml, com.example.cloudflared)과 완전히 따로 돈다 — 그쪽이 재시작돼도 통화가 안 끊긴다. -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.tab5phone-tunnel</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>__CLOUDFLARED__</string>
+        <string>--no-autoupdate</string>
+        <string>tunnel</string>
+        <string>--config</string>
+        <string>__HOME__/.cloudflared/tab5phone.yml</string>
+        <string>run</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/tab5phone/tunnel.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/tab5phone/tunnel.log</string>
+</dict>
+</plist>

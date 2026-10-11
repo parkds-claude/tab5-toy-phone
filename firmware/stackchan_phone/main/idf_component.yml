@@ -1,0 +1,9 @@
+dependencies:
+  idf: '>=5.4'
+  # ── Tab5 전화기(firmware/tab5_phone)와 같은 판으로 고정 — 같은 에코 제거·같은 Opus·같은 교환기 연결 코드를 함께 쓴다(TW-D11) ──
+  m5stack/m5unified: '0.2.23'           # board_M5StackChan 을 안다
+  m5stack/m5gfx: '0.2.30'
+  espressif/esp_codec_dev: '1.6.2'      # AW88298·ES7210 드라이버 포함
+  espressif/esp-sr: '2.5.5'             # 에코 제거
+  espressif/esp_audio_codec: '2.5.0'    # Opus (2.6 의 어셈블리 최적화는 P4·S31 전용 — S3 에는 이득이 없다)
+  espressif/esp_websocket_client: '1.8.0'

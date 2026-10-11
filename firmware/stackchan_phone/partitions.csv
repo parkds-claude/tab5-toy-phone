@@ -1,0 +1,14 @@
+# 스택짱 2호기의 칸 나눔(16MB) — UIFlow2(스트림덱)와 전화기 펌웨어가 한 플래시에 함께 산다. 설계서 2026-10-08-phone-3way-design.md §11.1 (TW-D14·D16).
+# nvs·phy_init·factory·sys·storage 는 UIFlow2 v2.4.4 의 표(백업 이미지 0x8000 에서 읽음)와 자리·크기·종류가 같아야 한다 — tools/sc_dualboot.py check 가 대조한다.
+# vfs 만 4.75MB → 1.25MB 로 줄였고(0.68MB 사용), 그 자리에 전화기 앱(ota_0)·부팅 선택(otadata)·전화기 전용 설정(nvs_phone)을 넣었다.
+# 주의: 이 프로젝트에 `idf.py flash` 를 쓰지 않는다 — 앱을 factory(UIFlow2 자리)에 쓴다. 올리기는 tools/sc_flash.sh (CMakeLists.txt 가 flash 를 막아 둔다).
+# Name,     Type, SubType, Offset,   Size,     Flags
+nvs,        data, nvs,     0x9000,   0x6000,
+phy_init,   data, phy,     0xf000,   0x1000,
+factory,    app,  factory, 0x10000,  0x990000,
+sys,        data, 0x81,    0x9a0000, 0x100000,
+vfs,        data, 0x81,    0xaa0000, 0x140000,
+ota_0,      app,  ota_0,   0xbe0000, 0x370000,
+otadata,    data, ota,     0xf50000, 0x2000,
+nvs_phone,  data, nvs,     0xf52000, 0x6000,
+storage,    data, 0x82,    0xf60000, 0xa0000,

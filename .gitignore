@@ -1,0 +1,41 @@
+# 비밀 — 절대 올리지 않는다. 이름이 조금 달라도(백업·사본) 걸리도록 무늬로 막는다.
+secrets*.h*
+!secrets.h.example
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*credentials*.json
+*.bak
+*.orig
+*.env
+*.nvs
+
+# ESP-IDF 산출물 — build-dev 처럼 이름이 붙은 폴더도. 바이너리에는 secrets.h 의 토큰이 들어 있다.
+firmware/**/build*/
+firmware/**/managed_components/
+firmware/**/sdkconfig
+firmware/**/sdkconfig.old
+firmware/**/dependencies.lock
+*.bin
+*.elf
+*.map
+*.uf2
+
+# 시험 산출물·캐시·로그·녹음
+out/
+backups/
+*.log
+*.pcm
+*.wav
+*.mp3
+*.m4a
+*.opus
+*.pcap
+*.pcapng
+__pycache__/
+.pytest_cache/
+.DS_Store
+.venv/
+venv/

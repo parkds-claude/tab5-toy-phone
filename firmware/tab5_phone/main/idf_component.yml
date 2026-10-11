@@ -1,0 +1,13 @@
+dependencies:
+  idf: '>=5.4'
+  # ── 스냅부스(2호기에서 검증된 조합)·시험 펌웨어(Phase 0)와 같은 판으로 고정. 풀지 말 것 ──
+  m5stack/m5unified: '0.2.23'
+  m5stack/m5gfx: '0.2.30'
+  espressif/esp_wifi_remote: '1.6.5'
+  espressif/esp_hosted: '2.11.7'        # Tab5 C6 슬레이브와 검증된 세대. 3.x 는 SDIO 초기화 실패
+  # ── 소리(Phase 3 에서 쓴다). 시험 펌웨어에서 검증한 판 ──
+  espressif/esp_codec_dev: '1.6.2'      # 2.0.0 은 시험판
+  espressif/esp-sr: '2.5.5'             # 에코 제거. P4 rev<3 전용 라이브러리 포함
+  espressif/esp_audio_codec: '2.5.0'    # Opus. 2.6 이상은 P4 rev 3.0 이상만 빌드됨 → 우리 기기(rev 1.3)는 2.5.x
+  # ── 교환기 연결 ──
+  espressif/esp_websocket_client: '1.8.0'   # 닫기 코드 노출·재연결 간격 변경이 이 판부터. idf>=5.0, 칩 제한 없음

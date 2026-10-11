@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Tab5 전화 교환기(phone_relay.py) launchd 설정 템플릿. phone_relay_prod.sh install 이 자리표시자를 채워 ~/Library/LaunchAgents 에 쓴다.
+     P4-D3: 토큰은 여기에 없다 — 교환기가 server/.env.phone 을 스스로 읽는다. BIND·PORT 는 환경으로 고정(.env.phone 의 값보다 우선 —
+     개발용 BIND=0.0.0.0 이 섞여 와도 밖으로 열리지 않는다). -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.tab5phone-relay</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>__PYTHON__</string>
+        <string>__SERVER_DIR__/phone_relay.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>__SERVER_DIR__</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>BIND</key>
+        <string>127.0.0.1</string>
+        <key>PORT</key>
+        <string>5094</string>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/tab5phone/relay.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/tab5phone/relay.log</string>
+</dict>
+</plist>

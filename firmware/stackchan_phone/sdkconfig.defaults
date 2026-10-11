@@ -1,0 +1,67 @@
+# 스택짱 2호기 전화기 펌웨어 — M5Stack CoreS3 기반(ESP32-S3: 16MB Flash / 8MB Quad PSRAM).
+# 값의 근거는 관문 실험(docs/exec-plans/2026-10-08-stackchan-phone-probe.md)과 설계서(2026-10-08-phone-3way-design.md).
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+# 부트로더는 UIFlow2 의 것을 그대로 쓴다(우리 것은 올리지 않는다 — TW-D14). 플래시 읽기 방식(캐시)은 그 부트로더가 정해 둔 대로 돈다.
+# 앱의 플래시 설정은 기본값(DIO·80MHz) 그대로 둔다 — 관문 시험 펌웨어가 이 기기에서 돈 설정이다(esp_flash API 의 읽기·쓰기에만 쓰인다. 백업의 부트로더 헤더도 DIO·80MHz·16MB).
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+CONFIG_FREERTOS_HZ=1000
+
+# 콘솔 = 칩 내장 USB-Serial/JTAG — 이 펌웨어가 돌고 있으면 esptool 자동 리셋이 된다(손 불필요)
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+
+# 부팅할 쪽 고르기(스트림덱 ↔ 전화기): otadata 를 쓴다. 부트로더가 되돌리기를 켰든 아니든 앱은 부팅 직후 "정상"을 표시한다(sc_boot.cpp)
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+
+# UIFlow2 의 설정 칸(nvs)에 쓰지 않는다(TW-D16): Wi-Fi 설정·무선 보정값을 플래시에 남기지 않는다. 전화기 설정은 nvs_phone 칸에만.
+CONFIG_ESP_WIFI_NVS_ENABLED=n
+CONFIG_ESP_PHY_CALIBRATION_AND_DATA_STORAGE=n
+
+# PSRAM: 화면 합성 버퍼·수신 대기열·Wi-Fi/TLS 는 PSRAM, 소리 처리(에코 제거·Opus)의 스택과 상태는 내부 메모리(관문 조건 4)
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_QUAD=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
+# 태스크 스택을 PSRAM 에 둘 수 있게(app·touch·sercmd·wifi·relay·v_rx·v_tx). 빠지면 내부 메모리로 조용히 떨어져 메모리 예산이 깨진다 — 기본값이지만 명시한다
+CONFIG_SPIRAM_ALLOW_STACK_EXTERNAL_MEMORY=y
+CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM=y
+
+# 캐시를 넉넉히(esp-sr 예제의 S3 설정)
+CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB=y
+CONFIG_ESP32S3_DATA_CACHE_64KB=y
+CONFIG_ESP32S3_DATA_CACHE_LINE_64B=y
+
+# 내부 메모리 아끼기 — 관문 실험에서 xiaozhi-esp32 의 S3 설정에 맞춘 값(처음 설정은 여유가 10KB 까지 내려갔다)
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=6
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=8
+CONFIG_ESP_WIFI_RX_BA_WIN=6
+CONFIG_ESP_WIFI_IRAM_OPT=n
+CONFIG_ESP_WIFI_RX_IRAM_OPT=n
+CONFIG_ESP_WIFI_DYNAMIC_RX_MGMT_BUFFER=y
+
+CONFIG_LWIP_MAX_SOCKETS=10
+
+# wss://(TLS)로 교환기에 붙기 — Tab5 전화기와 같은 설정(이유·비용·탈출구는 ../tab5_phone/main/relay_link.cpp 의 P4N-D1·D2·D6, 그 파일의 #error 가 지킨다)
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_DEFAULT_FULL=y
+CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC=y
+CONFIG_MBEDTLS_HARDWARE_AES=n
+CONFIG_MBEDTLS_HARDWARE_SHA=n
+# 켜지 않는다(기본값 유지): CONFIG_ESP_WS_CLIENT_SEPARATE_TX_LOCK, CONFIG_MBEDTLS_DYNAMIC_BUFFER(wss 에서 읽기·쓰기가 겹쳐 메모리가 깨진 보고 — Tab5 설정의 주석),
+#   CONFIG_MBEDTLS_HAVE_TIME_DATE(기기에 시계가 없다), CONFIG_ESP_TLS_INSECURE.
+
+# 태스크별·코어별 CPU 사용률(시리얼 'cpu')
+CONFIG_FREERTOS_USE_TRACE_FACILITY=y
+CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS=y
+CONFIG_FREERTOS_VTASKLIST_INCLUDE_COREID=y
+
+# 교환기 연결(esp_websocket_client) — Tab5 전화기와 같은 값
+# 접속 응답 헤더가 이 버퍼에 다 들어가야 한다(Cloudflare 를 거친 응답 헤더가 600~700바이트 — 기본 1024 는 빠듯하다)
+CONFIG_WS_BUFFER_SIZE=2048
+# 토큰이 든 접속 요청 전문을 오류 로그로 찍는 transport_ws 를 esp_log_level_set 으로 막는다(relay_link.cpp RL-D9)
+CONFIG_LOG_DYNAMIC_LEVEL_CONTROL=y
